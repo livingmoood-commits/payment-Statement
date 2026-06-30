@@ -374,10 +374,11 @@ function buildPdfHtml(forPrint, forEmail=false){
   const c   = STATE.customer || {};
   const date= new Date().toLocaleDateString('en-GB');
   const notes = CFG.noteLines.map(l=>`<div style="margin-bottom:6px;">• ${l}</div>`).join('');
-  const total = num(c.total);
+ const total = num(c.total);
+  const printRows = STATE.rows.filter(r => num(r.amount) > 0);
   let cumulative = 0;
   let tbody='';
-  STATE.rows.forEach((r,i)=>{
+  printRows.forEach((r,i)=>{
     const amt = num(r.amount);
     let pct = '';
     if(amt > 0){
@@ -581,7 +582,7 @@ const UI = {
         action:'sendEmailCashFlow',
         to,
         subject:'Cash Flow Statement - Living Mood',
-        rows: STATE.rows,
+        rows: STATE.rows.filter(r => num(r.amount) > 0),
         customer: STATE.customer,
         total: num(STATE.customer.total),
         received: P.received()
@@ -664,17 +665,7 @@ const P = {
   received(){ return STATE.rows.reduce((s,r)=>s+num(r.amount),0); },
   set(id,f,v){ const r=STATE.rows.find(r=>r._id===id); if(r) r[f]=v; },
   setAmount(id,v){
-    const r=STATE.rows.find(r=>r._id===id);
-    if(!r) return;
-    const newVal = num(v);
-    r.amount = newVal;
-    if(newVal > 0 && !r.date){
-      r.date = new Date().toLocaleDateString('en-GB');
-    } else if(newVal <= 0){
-      r.date = '';
-    }
-    this.render();
-  },
+
 
   refreshTotals(){
     const total = num($('b-total').value);
@@ -781,9 +772,9 @@ const API = {
     STATE.customer.completed = $('chk-complete').checked;
     loading('جاري الحفظ...');
     try{
-      const d=await this.fetch('POST',{
+const d=await this.fetch('POST',{
         action:'saveCashFlow', customer:STATE.customer,
-        rows:STATE.rows, received:P.received()
+        rows:STATE.rows.filter(r => num(r.amount) > 0), received:P.received()
       });
       d.success ? alert_('alert-save','ok','✔ تم الحفظ في Google Sheets بنجاح')
                 : alert_('alert-save','err','خطأ: '+(d.error||'غير معروف'));
