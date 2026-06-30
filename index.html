@@ -665,7 +665,10 @@ const P = {
   received(){ return STATE.rows.reduce((s,r)=>s+num(r.amount),0); },
   set(id,f,v){ const r=STATE.rows.find(r=>r._id===id); if(r) r[f]=v; },
   setAmount(id,v){
-
+    const r=STATE.rows.find(r=>r._id===id);
+    if(r) r.amount = num(v);
+    this.render();
+  },
 
   refreshTotals(){
     const total = num($('b-total').value);
