@@ -665,10 +665,7 @@ const P = {
   received(){ return STATE.rows.reduce((s,r)=>s+num(r.amount),0); },
   set(id,f,v){ const r=STATE.rows.find(r=>r._id===id); if(r) r[f]=v; },
   setAmount(id,v){
-    const r=STATE.rows.find(r=>r._id===id);
-    if(r) r.amount = num(v);
-    this.render();
-  },
+
 
   refreshTotals(){
     const total = num($('b-total').value);
@@ -702,23 +699,6 @@ const P = {
         <td><button class="btn btn-danger btn-sm" onclick="P.del(${r._id})">✕</button></td>`;
       tb.appendChild(tr);
     });
-
-    const received = this.received();
-    const remaining = total - received;
-    if(total > 0 && remaining > 0.01){
-      const gtr = document.createElement('tr');
-      gtr.style.opacity = '0.55';
-      gtr.style.fontStyle = 'italic';
-      gtr.innerHTML = `
-        <td style="text-align:center;color:var(--mid);font-size:11px;">${STATE.rows.length+1}</td>
-        <td style="color:var(--mid);">${ordinalName(STATE.rows.length)} <span style="font-size:10px;">(متوقعة)</span></td>
-        <td class="num-cell" style="color:var(--mid);">${fmt(remaining)}</td>
-        <td class="pct-cell" style="color:var(--mid);">100%</td>
-        <td class="date-cell">—</td>
-        <td></td>`;
-      tb.appendChild(gtr);
-    }
-
     this.refreshTotals();
   }
 };
