@@ -803,7 +803,8 @@ const API = {
       const d=await this.fetch('GET',{action:'listCustomers'});
       if(!d.customers?.length){ list.innerHTML='<div style="color:var(--mid);text-align:center;padding:20px;font-size:13px;">لا يوجد سجلات بعد</div>'; return; }
       list.innerHTML='';
-      d.customers.forEach(c=>{
+      const sorted = [...d.customers].sort((a,b)=> String(b.date||'').localeCompare(String(a.date||'')));
+      sorted.forEach(c=>{
         const div=document.createElement('div'); div.className='c-item';
         const pct = c.total>0 ? Math.min(100,(num(c.received)/num(c.total))*100) : 0;
         const remaining = num(c.total) - num(c.received);
