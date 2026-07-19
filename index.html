@@ -445,12 +445,14 @@ function buildPdfHtml(forPrint, forEmail=false){
 
   const received = P.received();
   const remaining = total - received;
+  const projectNameForTitle = (STATE.customer && STATE.customer.address) ? STATE.customer.address.trim() : '';
+  const pdfDocTitle = 'Payment Statement' + (projectNameForTitle ? ' - ' + projectNameForTitle : '');
 
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8"/>
-  <title>LivingMood_PaymentStatement</title>
+  <title>${h(pdfDocTitle)}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet"/>
