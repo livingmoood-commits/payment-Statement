@@ -235,6 +235,7 @@ table.q-tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:640px;}
     </div>
     <div class="card">
       <div class="card-title">السجلات السابقة</div>
+      <div id="alert-list" class="alert"></div>
       <div id="c-list"><div style="color:var(--mid);text-align:center;padding:24px;font-size:13px;">جاري التحميل...</div></div>
     </div>
   </div>
@@ -843,10 +844,11 @@ const API = {
         el.style.transition='opacity .3s';
         el.style.opacity='0';
         setTimeout(()=>el.remove(),300);
+        alert_('alert-list','ok','✔ تم الحذف بنجاح');
       } else {
-        alert_('alert-create','err','خطأ في الحذف: '+(d.error||'غير معروف'));
+        alert_('alert-list','err','خطأ في الحذف: '+(d.error||'غير معروف'));
       }
-    }catch(e){ alert_('alert-create','err','تعذر الحذف: '+e.message); }
+    }catch(e){ alert_('alert-list','err','تعذر الحذف: '+e.message); }
     finally{ loaded(); }
   },
 
