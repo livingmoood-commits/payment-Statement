@@ -264,6 +264,10 @@ table.q-tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:640px;}
             <span class="info-lbl">الإجمالي الكلي:</span>
             <input type="text" inputmode="numeric" id="b-total" style="width:140px;font-weight:700;" onkeypress="return /[0-9.]/.test(event.key)" onchange="P.refreshTotals(); saveSession()"/>
           </div>
+          <div class="info-row">
+            <span class="info-lbl">تاريخ استلام المشروع:</span>
+            <input type="date" id="b-received-date" style="border:1px solid var(--border);border-radius:5px;padding:4px 8px;background:#fff;direction:ltr;" onchange="STATE.customer.date=toEnGB(this.value); saveSession()"/>
+          </div>
         </div>
       </div>
     </div>
@@ -404,6 +408,7 @@ function restoreSession(){
     $('b-engineer').value = STATE.customer.engineer || '';
     $('b-address').value  = STATE.customer.address  || '';
     $('b-total').value    = s.total || 0;
+    $('b-received-date').value = toISO(STATE.customer.date || '');
     $('chk-complete').checked = !!s.completed;
     $('complete-msg').classList.toggle('show', !!s.completed);
     P.render();
@@ -523,6 +528,7 @@ function buildPdfHtml(forPrint, forEmail=false){
   <div class="client-box">
     ${c.engineer ? `<div class="client-row"><span class="client-lbl">موجه إلى:</span><span class="client-val">${h(c.engineer)}</span></div>` : ''}
     ${c.address  ? `<div class="client-row"><span class="client-lbl">العنوان / المشروع:</span><span class="client-val">${h(c.address)}</span></div>` : ''}
+    ${c.date     ? `<div class="client-row"><span class="client-lbl">تاريخ استلام المشروع:</span><span class="client-val">${h(c.date)}</span></div>` : ''}
   </div>
 
   <br/>
@@ -664,11 +670,13 @@ const UI = {
     const total = num($('inp-total').value);
     if(!eng && !adr){ alert_('alert-create','err','برجاء إدخال موجه إلى أو العنوان'); return; }
     const name = [eng,adr].filter(Boolean).join(' - ');
-    STATE.customer = { name, engineer:eng, address:adr, total, completed:false };
+    const todayISO = new Date().toISOString().slice(0,10);
+    STATE.customer = { name, engineer:eng, address:adr, total, completed:false, date: toEnGB(todayISO) };
     STATE.rows = [P.newRow(0)];
 $('b-engineer').value = eng || '';
     $('b-address').value  = adr || '';
     $('b-total').value = total;
+    $('b-received-date').value = todayISO;
     $('chk-complete').checked = false;
     $('complete-msg').classList.remove('show');
     P.render();
@@ -681,6 +689,7 @@ $('b-engineer').value = eng || '';
 $('b-engineer').value = c.engineer || '';
     $('b-address').value  = c.address  || '';
     $('b-total').value = c.total || 0;
+    $('b-received-date').value = toISO(c.date || '');
     loading('جاري تحميل السجل...');
     API.fetch('GET',{action:'getCashFlow',name:c.name})
       .then(d=>{
@@ -857,6 +866,7 @@ const API = {
   async save(){
     STATE.customer.total = num($('b-total').value);
     STATE.customer.completed = $('chk-complete').checked;
+    STATE.customer.date = toEnGB($('b-received-date').value);
     loading('جاري الحفظ...');
     try{
       const d=await this.fetch('POST',{
